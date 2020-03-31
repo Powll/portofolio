@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+    <meta charset = "UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="default.css">
+    
+    <head>
+
+    </head>
+    <body>
+        <!-- SITE GOES HERE -->
+        
+        <!-- Navbar -->
+        <ul>
+            <li><a href="index.html">Portofolio</a></li>
+            <li><a href="blog.html">Blog</a></li>
+            <li><a href="demos.html">Demos</a></li>
+        </ul>
+        
+        <div class="header">
+            <h2>My Blog</h2>
+        </div>
+        
+        <div class="row">
+            <div class="leftcolumn">
+                <div class="card">
+                    <h2>OpenGL fluid simulation</h2>
+                    <h5>Research and status of project, Mar 21, 2020</h5>
+                    <h3>Project argument</h3>
+                        <p>
+                            The purpose of this project is to demonstrate that a lightweight and modular approach to OpenGL fluid simulations can be achieved through the combination of the design pattern of <b>observers</b> with a <b>component system</b> - and that the result can be easily built/improved upon. The poster detailing the overarching concept as well as some more technical details and outcomes can be found <a href="downloads/Poster_Fluids.pdf">here</a>.
+                        </p>
+                    <h3>Project background</h3>
+                        <img src="images/Particles1.png">
+                        <p>
+                            The theme of the project is a fluid simulation - a very popular subject, given the dozens of papers and projects in existence that are based around it. However, that begs the question, why attempt to re-create something that already exists, is quite well-documented and has plenty of open-source implementations? The reason is quite straightforward: among all those implementations, I was unable to find something lightweight, re-usable and re-purposable. I decided that this project would be more than just a solution to simulating fluids, I would make it accessible, customisable and as user-friendly as possible. Therefore, the greatest task is to create a series of systems that facilitate easy integration of new code, modularity and maintainability. And how would I tackle such a task? By using a component system, of course. To this end, I have researched and developed a system that merges the idea of <b>components</b> with the design pattern of <b>observers</b> to facilitate maintainability and code de-coupling in a very accessible environment.
+                        </p>
+                    <h3>A brief introduction to component systems</h3>
+                        <p>
+                            I'm sure some of you are aware of how most game engines these days use components: take Unity, for example: the most basic GameObject you can add to a scene has just a Transform component that enables placement, rotation and scaling. Everything else, including meshes, particles, lights, physics, is added through separate components. To be more precise, a RigidBody component, for instance, would "subscribe" the GameObject it's attached to a Physics system, and then the system would take care of updating the GameObject and its physics.
+                        </p><p>    
+                            Those of you familiar with design patterns might actually recognise a specific pattern here - the "Observer". These omniscient entities, as the name implies, observe all objects that fit a certain description, instead of allowing each object to keep track of itself. To help you visualise how it works, try and think of 2 different contexts: one where each individual object of a Type A needs to be found and updated each game loop, and one where each individual object of a Type B has its reference stored by an Observer that can simply loop through each of them and update them accordingly. Because all the Type B objects's references are stored in the same place, we can easily access specific Type b objects by searching through the Observer's references, instead of looping through all the objects. 
+                        </p><p><img src="images/Components.png"> 
+                            Upon analysing this pattern, I came to the conclusion that creating a component system based around it would allow for good performance and modularity, so I decided to begin implementing it while taking inspiration from game engines such as Unity and Unreal. <b>Currently, the component system looks something like the image on the right. </b>
+                        </p>
+                    <h3>Under the hood</h3>
+                        <p>
+                            For the purpose of creating a standard component interface, the <b>IComponent</b> class is used. It holds a reference to its owner and the owner's transform (primarily for ease of access), as well as a method for return its <b>type</b> - this will be essential, later on. 
+                        </p>
+                        <p>
+                            A component is nothing, however, without a <b>GameObject</b> to attach it to. The class I created has a static list containing all the GameObjects instantiated, making it very easy to remove them all or to find a specific one by name, for instance. The list of components cannot be directly accessed. Instead, we make use of <b>GetComponent()</b> and <b>AddComponent()</b> to manipulate the components. Currently, these functions take in generic parameters and will return either a component that matches the given type or a null pointer. However, I noticed that by using this method a new instance of the given type is created whenever the methods are called and is only used for type comparison. While the performance impact is negligible at the current scale, once there are thousands of calls per update loop, this will become an issue. The solution, in this case, is to use a <b>component type</b> attribute from each individual component that will allow us to perform much less convoluted searches for the desired component. Finally, the <b>Update()</b> method is called by the application itself and handles the functionality of all the components attached to each individual GameObject.
+                        </p>
+                        <p>
+                            The <b>IComponentCamera, IComponentParticle and IComponentVisual</b> are the three main component families that I am currently using. The idea behind them is that only one of each type can be attached to a GameObject at any given point. They all feature different functions and attributes that their inherited classes -<b>Camera, ParticleSystem and MeshRenderer</b>, respectively- make use of and/or override.
+                        </p>
+                    <h3>Research sources</h3>
+                        <p>
+                            The primary research source I came across is a project called <a href="http://www.fluids3.com/">Fluids v.3</a>. The project provides an excellent implementation of a SPH (<a href="https://en.wikipedia.org/wiki/Smoothed-particle_hydrodynamics">Smoothed-particle hydrodynamics</a>) algorithm. Looking through the source code, it contains various complex calculations required for the simulation itself, and the challenge I face is adapting said code to the environment that I have created. In other words, coupling it with the <b>ParticleSystem</b> components and the <b>Particle</b> objects. The workflow I intend to follow is to begin by finding a suitable <b>physics library</b> such as bullet, then implement the fluid algorithm and see how it works. Finally, I will see how this algorithm can be used to create a <b>static library</b> for game engines such as Unity and Unreal.
+                        </p>
+                    <h3>Components of the component system</h3>
+                        <p>
+                            I have derived 3 distinct component types that are essential for the project to work properly: <b>IComponentCamera</b>, <b>IComponentParticle</b> and <b>IComponentVisual</b>. Each of these component types has a distinct functionality, as visible through the diagram on the right. <b>IComponentCamera</b> uses the <b>RenderCamera()</b> function to render all visible items visible to it - although I am considering converting the method to just keep track of objects that should be rendered. <b>IComponentParticle</b> uses the <b>RenderParticles()</b> function to render all particles assigned to it - it acts in a similar fashion to Unity's own Particle System. Finally, the <b>IComponentVisual</b>'s <b>Render()</b> function will render the specified mesh to the screen, given some camera parameters, namely the view and projection matrices. These 3 basic component types are then managed independently of each other, although some coupling does still occur, especially when rendering is concerned.
+                        </p>
+                        <p>
+                            The <b>Camera</b> component is quite self-explanatory: it has fields for all relevant parameters and provides access to the projection and view matrice
+                        </p>
+                        <p>
+                            The <b>ParticleSystem</b> component has a list of all visible particles and a separate list of all pooled particles in order to allow for pooled particles to be emitted instead of creating new particles every time a new emission is required. <b>Particle</b> objects are quite simple, only having a <b>Transform</b> and a <b>MeshRenderer</b> that allow it to move and be displayed, complete with a mterial and mesh. Parameters such as emission rate, emission speed and direction can be easily modified.
+                        </p>
+                        <p>
+                            The <b>MeshRenderer</b> component has a list of all materials to be used and a mesh to be rendered. The <b>Render()</b> function then makes use of both and renders the desired mesh. The <b>Material</b> object holds information such as texture id's and shader program id's, while the <b>Mesh</b> object has a list of all the vertices, complete with tangents, normals, colours etc. and buffer id's.
+                        </p>
+                    <h3>Outcomes</h3>
+                        <p>
+                            The envisioned outcome was to create a lightweight and modular fluid library that would be easily re-usable. Thanks to the use of a modular <b>component system</b> and a series of <b>observers</b> I believe that I was able to accomplish the task of creating a modular system that will let me implement any number of new features with relative ease. Additionally, I went to great lengths to ensure that code coupling is not an issue i.e. component dependency. I believe that this synergy between observers and components, coupled with the lack of code coupling (pardon the pun) ensures that the systems are highly flexible and provide an excellent basis for implementing demanding systems with performnace in mind, while being as programmer-friendly as possible.
+                        </p>
+                </div>
+                <div class="card">
+                    <h2>Hello and welcome!</h2>
+                    <h5>An introduction, Mar 21, 2020</h5>
+                    <div class="fakeimg" style="height:200px;">Image</div>
+                    <p>Welcome to my blog, this is where I'll be posting updates on my projects every now and then, please look forward to it!</p>
+                </div>
+            </div>
+            <div class="rightcolumn">
+                <div class="card">
+                    <h2>About me</h2>
+                    <div class="fakeimg" style="height:100px;">Image</div>
+                    <p>Some relevant text about me</p>
+                </div>
+                <div class="card">
+                    <h3>Popular Post</h3>
+                    <div class="fakeimg">Image</div><br>
+                    <div class="fakeimg">Image</div><br>
+                    <div class="fakeimg">Image</div>
+                </div>
+                <div class="card">
+                    <h3>Follow Me</h3>
+                    <p>Some text...</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <h2>Footer</h2>
+        </div>
+        
+    </body>
+</html>

@@ -1,0 +1,126 @@
+body {
+    background-color:#eee;
+    font-family: Arial;
+    padding: 20px;
+}
+
+* {
+    font-family:sans-serif; 
+    justify-content: center;
+    box-sizing: border-box;
+}
+
+h1 {
+    color:dimgray;
+    text-align: center;
+    font-size: 40px;
+}
+
+p {
+    text-align: justify;
+}
+
+ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    background-color: dimgray; 
+}
+
+li{
+    display: inline-block;
+}
+
+img {
+    background-color: white;
+    width: 50%;
+    height: 50%;
+    float: right;
+    padding: 15px;
+}
+
+/* Apply clearfix to all cards */
+.card::after {
+    content: "";
+    clear: both;
+    display: table;
+}
+
+li a{
+    display: inherit;
+    text-align: center;
+    color: whitesmoke;
+    padding: 8px 30px;
+    text-decoration: none;
+    font-size: 30px;
+}
+
+li a:hover{
+    background-color: darkgray;
+    color:dimgray
+}
+
+/* Header/Blog Title */
+.header{
+    padding: 30px;
+    font-size: 40px;
+    text-align: center;
+    background: white;
+}
+
+/* Two unequal columns that float next to each other */
+/* Left column */
+.leftcolumn{
+    float: left;
+    width: 75%;
+}
+
+/* Right column */
+.rightcolumn{
+    float: left;
+    width: 25%;
+    padding-left: 20px;
+}
+
+/* Fake image */
+.fakeimg{
+    background-color: #aaa;
+    width: 100%;
+    padding: 20px;
+}
+
+/* Add a card effect fort articles*/
+.card{
+    background-color: white;
+    padding: 20px;
+    margin-top: 20px;
+}
+
+/* Clear floats after the columns */
+.row:after{
+    content: "";
+    display: table;
+    clear: both;
+}
+
+/* Footer */
+.footer {
+    padding: 20px;
+    text-align:  : center;
+    background: #ddd;
+    margin-top: 20px;
+}
+
+/* Responsive layout - when the screen is less than 800px wide, make the two columns stack on top of each other instad of next to each other */
+@media screen and (max-width: 800px) {
+    .leftcolumn, .rightcolumn {
+        width: 100%;
+        padding: 0;
+    }
+}
+
+@media screen and (max-width: 1200px) {
+    img {
+        width: 100%;
+    }
+}
